@@ -1,6 +1,6 @@
-import { FC, PropsWithChildren } from "react";
+import { ExtendedComponent } from "types/ExtendedComponent";
 
-const GithubIcon = (props: PropsWithChildren<Record<string, any>>) => {
+const GithubIcon:ExtendedComponent = (props) => {
   return (
     <svg
       stroke="currentColor"

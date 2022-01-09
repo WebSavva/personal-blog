@@ -1,6 +1,6 @@
-import { FC, PropsWithChildren } from "react";
+import { ExtendedComponent } from "types/ExtendedComponent";
 
-const LinkedInIcon = (props: PropsWithChildren<Record<string, any>>) => {
+const LinkedInIcon:ExtendedComponent = (props) => {
   return (
     <svg
       stroke="currentColor"

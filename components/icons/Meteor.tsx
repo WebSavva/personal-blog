@@ -1,6 +1,6 @@
-import { FC, PropsWithChildren } from "react";
+import { ExtendedComponent } from "types/ExtendedComponent";
 
-const MeteorIcon= (props: PropsWithChildren<Record<string, any>>) => {
+const MeteorIcon:ExtendedComponent = (props) => {
   return <svg
     stroke="currentColor"
     fill="currentColor"

@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],
+    "downlevelIteration": true,
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -17,9 +18,10 @@
     "baseUrl": ".",
     "paths": {
       "@/components/*": ["components/*"],
-      "@/HOC/*": ["components/HOC/*"]
+      "@/utils/*": ["utils/*"],
+      "@hooks/*": ["hooks/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "articles/generateArticles.js"],
   "exclude": ["node_modules"]
 }
