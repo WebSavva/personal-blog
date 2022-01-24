@@ -9,7 +9,9 @@
     "articles:generate": "tsc articles/generateArticles.ts --downlevelIteration && node articles/generateArticles.js"
   },
   "dependencies": {
+    "@tailwindcss/line-clamp": "^0.3.0",
     "animejs": "^3.2.1",
+    "mongoose": "^6.1.5",
     "next": "12.0.7",
     "react": "17.0.2",
     "react-dom": "17.0.2",

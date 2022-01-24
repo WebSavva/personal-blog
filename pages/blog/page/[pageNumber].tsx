@@ -1,40 +1,59 @@
 import { NextPage, GetStaticPaths, GetStaticProps } from "next";
-import { readdirSync, readFileSync } from "fs";
-import { resolve } from "path";
-import getRootDir from "@/utils/getRootDir";
+import Image from "next/image";
+import getArticleModel from "models/Article";
 
 import { IPaginationMetadata } from "types/Pagination";
-import { IBlogMetadata } from "types/Blog";
+import { IArticleMetadata } from "types/Blog";
 import { ParsedUrlQuery } from "querystring";
 
+import Pagination from '@/components/UI/Pagination';
 
 interface IBlogsPageProps {
   metadata: IPaginationMetadata;
-  blogs: IBlogMetadata[];
+  blogs: IArticleMetadata[];
 }
 
 interface IParams extends ParsedUrlQuery {
   pageNumber: string;
 }
 
-const BlogsPage: NextPage<IBlogsPageProps> = () => {
-    return <h1>
-        Hello World
-    </h1>;
+const BlogsPage: NextPage<IBlogsPageProps> = ({ blogs, metadata }) => {
+  
+  return (
+    <div className="py-10 px-5 flex flex-col">
+      <div className="flex flex-col items-center space-y-8 pl-10 mb-10">
+        {blogs.map((blog) => (
+          <div key={blog.title} className="shadow flex space-x-5 rounded-lg overflow-hidden w-[60%]">
+            <div className="w-[250px] flex-shrink-0 h-[250px] relative">
+              <Image src={blog.thumbnailUrl} alt={blog.title} layout="fill" objectFit="cover"/>
+            </div>
+
+            <div className="p-5"> 
+              <h5 className="text-lg font-bold uppercase">{blog.title}</h5>
+              
+              <p className="text-gray-800 text-md line-clamp-3">
+                {blog.description}
+              </p>
+            </div>  
+          </div>
+        ))}
+      </div>
+
+      <Pagination currentPage={metadata.page} pageCount={metadata.pageCount}/>
+    </div>
+  );
 };
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 1;
 export const getStaticPaths: GetStaticPaths = async () => {
-  const pagesCount =
-    Math.ceil(
-      readdirSync(resolve(getRootDir(), "articles")).filter((src) =>
-        src.endsWith(".mdx")
-      ).length / PAGE_SIZE
-    );
+  const Article = await getArticleModel();
 
-  const paths = [...Array(pagesCount).keys()].map((i) => ({
+  const articlesNumber = await Article.countDocuments({});
+  const pageCount = Math.ceil(articlesNumber / PAGE_SIZE);
+
+  const paths = Array.from({ length: pageCount }, (_, i) => ({
     params: {
-      pageNumber: (i + 1).toString(),
+      pageNumber: String(i + 1),
     },
   }));
 
@@ -47,30 +66,26 @@ export const getStaticPaths: GetStaticPaths = async () => {
 export const getStaticProps: GetStaticProps<IBlogsPageProps, IParams> = async (
   context
 ) => {
-  const articleNames = readdirSync(resolve((getRootDir(), "articles")))
-    .filter((src) => src.endsWith(".mdx"))
-    .sort();
+  const pageNumber = +context.params!.pageNumber;
+  const Article = await getArticleModel();
 
-  const articles = articleNames.map((src) =>
-    readFileSync(resolve(getRootDir(),"articles", src), "utf-8")
-  );
+  const pageCount = Math.ceil((await Article.countDocuments({})) / PAGE_SIZE);
 
-  console.log(articles[0]);
+  const blogs = await Article.find()
+    .sort({
+      date: 1,
+    })
+    .skip((pageNumber - 1) * PAGE_SIZE)
+    .limit(PAGE_SIZE).select({
+      body: 0,
+    });
 
   return {
     props: {
-      blogs: [
-        {
-          description: "",
-          publishedDate: new Date().toISOString(),
-          tags: ["seo"],
-          thumbnailUrl: "https://www.hello.com",
-          title: "Hello world",
-        },
-      ],
+      blogs: JSON.parse(JSON.stringify(blogs)),
       metadata: {
-        page: 1,
-        pageCount: 2,
+        page: pageNumber,
+        pageCount,
       },
     },
   };

@@ -22,6 +22,6 @@
       "@hooks/*": ["hooks/*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "articles/generateArticles.js"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "articles/generateArticles.js", ".d.ts"],
   "exclude": ["node_modules"]
 }
