@@ -1,0 +1,20 @@
+.pagination__item {
+  @apply text-lg rounded-full flex items-center justify-center min-w-[2rem] h-8 transition;
+}
+
+.pagination__item svg {
+  @apply w-3 h-3;
+}
+
+.pagination__item--selected,
+.pagination__item--page:hover {
+  @apply bg-slate-300;
+}
+
+.pagination__item--disabled {
+  @apply text-gray-400 cursor-default pointer-events-none;
+}
+
+.pagination__item--dots {
+  @apply text-sm m-1 cursor-default;
+}

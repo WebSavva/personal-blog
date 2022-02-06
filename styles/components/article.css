@@ -1,0 +1,17 @@
+.article {
+  @apply flex flex-col items-center my-20 w-1/2 text-gray-800;
+}
+
+.article__section {
+  @apply my-20;
+}
+
+.article h1 {
+  @apply block font-bold mb-10 text-4xl text-center;
+}
+
+.article h2 {
+  @apply block font-bold mb-5 text-2xl text-center;
+}
+
+

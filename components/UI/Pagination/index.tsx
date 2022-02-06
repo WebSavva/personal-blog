@@ -1,104 +1,109 @@
 import { FC } from "react";
-import {
-  FaChevronLeft,
-  FaChevronRight,
-} from 'react-icons/fa'
 
-import PaginationonItem from "./PaginationItem";
+import { TYPES } from "./PaginationItem";
+import PaginationItem from "./PaginationItem";
 
-type PaginationItem = typeof PaginationonItem;
 
 interface IPaginationProps {
-  currentPage: number;
-  pageCount: number;
+  page: number;
+  count: number;
   boundaryCount?: number;
   siblingCount?: number;
-  splitCount?: number;
+  showNextButton?: boolean;
+  showPrevButton?: boolean;
 }
 
 const Pagination: FC<IPaginationProps> = ({
-  currentPage,
-  pageCount,
-  boundaryCount = 2,
-  siblingCount = 2,
-  splitCount = 4,
+  page,
+  count,
+  boundaryCount = 1,
+  siblingCount = 1,
+  showNextButton = true,
+  showPrevButton= true,
 }) => {
-  let paginationItems:JSX.Element[] = [];
+  const range = (start: number, end: number) => {
+    const length = end - start + 1;
+    return Array.from({ length }, (_, i) => start + i);
+  };
 
-  if (pageCount <= siblingCount) {
-    paginationItems = Array.from({ length: pageCount }, (_, i) => (
-      <PaginationonItem
-        active={i + 1 === currentPage}
-        page={i + 1}
-        key={i + 1}
-      />
-    ));
-  } else {
-    const isNextDisabled = currentPage === pageCount;
-    const isPrevDisabled = currentPage === 1;
+  const startPages = range(1, Math.min(boundaryCount, count));
+  const endPages = range(Math.max(count - boundaryCount + 1, boundaryCount + 1), count);
 
-    const isLeftPartExtended = currentPage < splitCount;
-    const isRightPartExtended = currentPage > pageCount - splitCount;
+  const siblingsStart = Math.max(
+    Math.min(
+      // Natural start
+      page - siblingCount,
+      // Lower boundary when page is high
+      count - boundaryCount - siblingCount * 2 - 1,
+    ),
+    // Greater than startPages
+    boundaryCount + 2,
+  );
 
-    const leftPart = Array.from(
-      { length: isLeftPartExtended ? splitCount : boundaryCount },
-      (_, i) => {
-        const pageNumber = i + 1;
-        const isActive = pageNumber === currentPage;
-        return (
-          <PaginationonItem
-            key={pageNumber}
-            page={pageNumber}
-            active={isActive}
-          />
-        );
-      }
-    );
+  const siblingsEnd = Math.min(
+    Math.max(
+      // Natural end
+      page + siblingCount,
+      // Upper boundary when page is low
+      boundaryCount + siblingCount * 2 + 2,
+    ),
+    // Less than endPages
+    endPages.length > 0 ? endPages[0] - 2 : count - 1,
+  );
 
-    const middlePart =
-      !isLeftPartExtended && !isRightPartExtended
-        ? [
-            <PaginationonItem key="left-dots" dots />,
-            ...Array.from({ length: boundaryCount + 1 }, (_, i) => {
-              const pageNumber = currentPage + i - 1;
+  // Basic list of items to render
+  // e.g. itemList = ['first', 'previous', 1, 'ellipsis', 4, 5, 6, 'ellipsis', 10, 'next', 'last']
+  const itemList = [
+    ...(showPrevButton ? [TYPES.PREV] : []),
+    ...startPages,
 
-              return <PaginationonItem page={pageNumber} active={i === 1} />;
-            }),
-            <PaginationonItem key="right-dots" dots />,
-          ]
-        : [<PaginationonItem key="dots" dots />];
+    // Start ellipsis
+    // eslint-disable-next-line no-nested-ternary
+    ...(siblingsStart > boundaryCount + 2
+      ? [TYPES.START_ELLIPSIS]
+      : boundaryCount + 1 < count - boundaryCount
+      ? [boundaryCount + 1]
+      : []),
 
-    const rightPart = Array.from(
-      { length: isRightPartExtended ? splitCount + 1 : boundaryCount },
-      (_, i) => {
-        const pageNumber = pageCount - i;
-        const isActive = pageNumber === currentPage;
+    // Sibling pages
+    ...range(siblingsStart, siblingsEnd),
 
-        return (
-          <PaginationonItem
-            key={pageNumber}
-            page={pageNumber}
-            active={isActive}
-          />
-        );
-      }
-    ).reverse();
+    // End ellipsis
+    // eslint-disable-next-line no-nested-ternary
+    ...(siblingsEnd < count - boundaryCount - 1
+      ? [TYPES.END_ELLIPSIS]
+      : count - boundaryCount > boundaryCount
+      ? [count - boundaryCount]
+      : []),
 
-    paginationItems = [...leftPart, ...middlePart, ...rightPart];
-  }
-
-  paginationItems = [
-    <PaginationonItem key='prev-page' page={currentPage - 1} disabled={currentPage - 1 === 0}>
-      <FaChevronLeft className="w-3 h-3" />
-    </PaginationonItem>,
-
-    ...paginationItems,
-
-    <PaginationonItem key='prev-page' page={currentPage + 1} disabled={currentPage + 1 >= pageCount}>
-      <FaChevronRight className="w-3 h-3" />
-    </PaginationonItem>,
+    ...endPages,
+    ...(showNextButton ? [TYPES.NEXT] : []),
   ];
-  
+
+  // Map the button type to its page number
+  const buttonPage = (type: string) => {
+    switch (type) {
+      case 'previous':
+        return page - 1;
+      case 'next':
+        return page + 1;
+      default:
+        return null;
+    }
+  };
+
+  // Convert the basic item list to PaginationItem props objects
+  const paginationItems = itemList.map((item) => {
+    return typeof item === 'number'
+      ? <PaginationItem 
+          key={item}
+          type={TYPES.PAGE}
+          page={item}
+          selected={item === page}
+        />
+      : <PaginationItem key={item} type={item} page={buttonPage(item)} selected={false} />
+  });
+
   return <div className="flex space-x-1 m-auto">{paginationItems}</div>;
 };
 

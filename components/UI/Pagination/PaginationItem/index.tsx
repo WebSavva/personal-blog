@@ -1,19 +1,45 @@
 import { FC } from "react";
 import Link from "next/link";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-interface IPaginationItemProps {
-  page?: number;
-  active?: boolean;
-  disabled?: boolean;
-  dots?: boolean;
+export enum TYPES {
+  NEXT = "next",
+  PREV = "previous",
+  PAGE = "page",
+  START_ELLIPSIS = 'start-ellipsis',
+  END_ELLIPSIS = 'end-ellipsis',
 }
 
-const PaginationItem: FC<IPaginationItemProps> = ({ page, active, dots, children, disabled }) => {
+interface IPaginationItemProps {
+  page: number | null;
+  selected?: boolean;
+  disabled?: boolean;
+  type: TYPES;
+}
 
-
-  if (dots) {
-    return <button className='pagination-dots'>...</button>;
+const PaginationItem: FC<IPaginationItemProps> = ({
+  page = 1,
+  selected = false,
+  disabled = false,
+  type,
+}) => {
+  if (type === TYPES.START_ELLIPSIS || type === TYPES.END_ELLIPSIS) {
+    return <div className="pagination__item pagination__item--dots">...</div>;
   } else {
+    let itemContent: JSX.Element | IPaginationItemProps['page'];
+
+    switch (type) {
+      case TYPES.NEXT:
+        itemContent = <FaChevronRight />;
+        break;
+      case TYPES.PREV:
+        itemContent = <FaChevronLeft />;
+        break;
+      case TYPES.PAGE:
+      default:
+        itemContent = page;
+    }
+
     return (
       <Link
         href={{
@@ -21,10 +47,12 @@ const PaginationItem: FC<IPaginationItemProps> = ({ page, active, dots, children
           query: { pageNumber: page },
         }}
       >
-        <a className={`pagination-item ${active ? 'active' : ''} ${disabled ? 'disabled' : ''}`}>
-          {
-            children || page
-          }
+        <a
+          className={`pagination__item pagination__item--page ${selected ? "pagination__item--selected" : ""} ${
+            disabled ? "pagination__item--disabled" : ""
+          }`}
+        >
+          {itemContent}
         </a>
       </Link>
     );

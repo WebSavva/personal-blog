@@ -1,4 +1,4 @@
-import { RefObject, useState, useEffect } from "react";
+import { RefObject, useState, useEffect, useRef } from "react";
 
 interface useIOConfig {
   rootRef: RefObject<null | Element>;
@@ -19,8 +19,10 @@ const useIntersetionObserver = ({
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          console.log(entry);
+          
           setIsRevealed(entry.isIntersecting);
-
+          
           if (once && rootEl && entry.isIntersecting) observer.unobserve(rootEl);
         });
       },
@@ -34,7 +36,7 @@ const useIntersetionObserver = ({
     return () => {
       if (rootEl) observer.unobserve(rootEl);
     };
-  }, []);
+  }, [once, rootRef, threshold]);
 
   return isRevealed;
 };
