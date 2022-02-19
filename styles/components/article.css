@@ -1,17 +1,17 @@
 .article {
-  @apply flex flex-col items-center my-20 w-1/2 text-gray-800;
+  @apply flex flex-col py-10  w-[700px] mx-auto text-gray-800;
 }
 
 .article__section {
-  @apply my-20;
+  @apply my-5;
 }
 
 .article h1 {
-  @apply block font-bold mb-10 text-4xl text-center;
+  @apply block font-bold mb-5 text-4xl;
 }
 
 .article h2 {
-  @apply block font-bold mb-5 text-2xl text-center;
+  @apply block font-bold mb-5 text-2xl;
 }
 
 

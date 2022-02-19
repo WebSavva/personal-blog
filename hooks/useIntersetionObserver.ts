@@ -17,14 +17,11 @@ const useIntersetionObserver = ({
     const rootEl = rootRef.current;
 
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          console.log(entry);
-          
-          setIsRevealed(entry.isIntersecting);
-          
-          if (once && rootEl && entry.isIntersecting) observer.unobserve(rootEl);
-        });
+      ([entry]) => {
+        setIsRevealed(entry.isIntersecting);
+
+        console.log(entry);
+        if (once && rootEl && entry.isIntersecting) observer.unobserve(rootEl);
       },
       {
         threshold,

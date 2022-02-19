@@ -17,11 +17,13 @@ const ArticleSection:FC<IArticleSectionProps> = ({
     const isRevealed = useIntersetionObserver({
         once: false,
         rootRef: sectionRef,
-        threshold: 1,
+        threshold: .8,
     });
 
     useEffect(() => {
-        if (isRevealed) onIntersection(id);
+        if (isRevealed) {
+            onIntersection(id);
+        }
     }, [isRevealed, onIntersection, id]);
 
     return <div ref={sectionRef} className='article__section' id={id}>

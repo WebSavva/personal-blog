@@ -1,0 +1,21 @@
+<template>
+    <div>
+        {{ foo }}
+    </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+        foo: 'hello'
+        };
+    },
+}
+</script>
+
+<style>
+.foo {
+    background: green;
+}
+</style>

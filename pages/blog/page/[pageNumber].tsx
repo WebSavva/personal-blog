@@ -1,42 +1,73 @@
-import { NextPage, GetStaticPaths, GetStaticProps } from "next";
-import Image from "next/image";
-import getArticleModel from "models/Article";
-
 import { IPaginationMetadata } from "types/Pagination";
-import { SerializedArticleMetadata } from "types/Blog";
+import { IArticleMetadata } from "types/Blog";
 import { ParsedUrlQuery } from "querystring";
 
-import Pagination from '@/components/UI/Pagination';
-import ArticleItem from '@/components/ArticleItem';
+import { NextPage, GetStaticPaths, GetStaticProps } from "next";
+import compileArticle from "@/utils/articles/compileArticle";
+import { getArticlesList } from "@/utils/articles/utils";
 
-interface IBlogsPageProps {
+import Pagination from "@/components/UI/Pagination";
+import ArticleItem from "@/components/ArticleItem";
+
+type ExtendedIArticleMetadata = IArticleMetadata & { slug: string };
+interface IArticlesPageProps {
   metadata: IPaginationMetadata;
-  blogs: SerializedArticleMetadata[];
+  articles: ExtendedIArticleMetadata[];
 }
-
 interface IParams extends ParsedUrlQuery {
   pageNumber: string;
 }
 
-const BlogsPage: NextPage<IBlogsPageProps> = ({ blogs, metadata }) => {
-  
+const BlogsPage: NextPage<IArticlesPageProps> = ({ articles, metadata }) => {
   return (
     <div className="py-10 px-5 flex flex-col">
       <div className="flex flex-col items-center space-y-8 pl-10 mb-10">
-        {blogs.map((blog, i) => <ArticleItem key={blog.title} {...blog} order={i + 1} />)}
+        {articles.map((article, i) => (
+          <ArticleItem key={article.title} {...article} order={i + 1} />
+        ))}
       </div>
 
-      <Pagination page={metadata.page} count={metadata.pageCount}/>
+      <Pagination page={metadata.page} count={metadata.pageCount} />
     </div>
   );
 };
 
 const PAGE_SIZE = 3;
-export const getStaticPaths: GetStaticPaths = async () => {
-  const Article = await getArticleModel();
 
-  const articlesNumber = await Article.countDocuments({});
-  const pageCount = Math.ceil(articlesNumber / PAGE_SIZE);
+const getArticlesMetaList = (() => {
+  let articlesMetaList: Array<ExtendedIArticleMetadata>;
+
+  return async () => {
+    if (articlesMetaList) return articlesMetaList;
+
+    articlesMetaList = [];
+    
+    const articleSlugs = getArticlesList();
+
+    for (let slug of articleSlugs) {
+      const {
+        frontMatter,
+      } = await compileArticle(slug);
+
+      articlesMetaList.push({
+        ...frontMatter,
+        slug,
+      });
+    }
+
+    articlesMetaList.sort(
+      (a, b) =>
+        new Date(a.publishedAt).valueOf() - new Date(b.publishedAt).valueOf()
+    );
+
+    return articlesMetaList;
+  };
+})();
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const articlesList = getArticlesList();
+
+  const pageCount = Math.ceil(articlesList.length / PAGE_SIZE);
 
   const paths = Array.from({ length: pageCount }, (_, i) => ({
     params: {
@@ -50,26 +81,23 @@ export const getStaticPaths: GetStaticPaths = async () => {
   };
 };
 
-export const getStaticProps: GetStaticProps<IBlogsPageProps, IParams> = async (
-  context
-) => {
+export const getStaticProps: GetStaticProps<
+  IArticlesPageProps,
+  IParams
+> = async (context) => {
   const pageNumber = +context.params!.pageNumber;
-  const Article = await getArticleModel();
 
-  const pageCount = Math.ceil((await Article.countDocuments({})) / PAGE_SIZE);
+  const articlesMetaList = await getArticlesMetaList();
 
-  const blogs = await Article.find()
-    .sort({
-      date: 1,
-    })
-    .skip((pageNumber - 1) * PAGE_SIZE)
-    .limit(PAGE_SIZE).select({
-      body: 0,
-    });
+  const pageCount = Math.ceil(articlesMetaList.length / PAGE_SIZE);
+
+  const offset = (pageNumber - 1) * PAGE_SIZE;
+
+  const articles = articlesMetaList.slice(offset, offset + PAGE_SIZE);
 
   return {
     props: {
-      blogs: JSON.parse(JSON.stringify(blogs)) as SerializedArticleMetadata[],
+      articles,
       metadata: {
         page: pageNumber,
         pageCount,

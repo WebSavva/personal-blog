@@ -7,7 +7,9 @@ const Layout:FC = (props) => {
     return <div>
         <Header />
 
-        {props.children}
+        <div className="mt-[90px]">
+            {props.children}
+        </div>
 
         <Footer/>
     </div>
