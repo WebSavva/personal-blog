@@ -1,5 +1,5 @@
-import { useRef, useEffect } from "react";
-import anime from 'animejs';
+import { useRef, useEffect, useState } from "react";
+import anime, { AnimeTimelineInstance } from 'animejs';
 import { AnimateOnReveal } from "types/AnimationReveal";
 
 import useIntersetionObserver from "./useIntersetionObserver";
@@ -17,18 +17,23 @@ const useAnimationReveal = <T extends HTMLElement>({
     const isRevealed = useIntersetionObserver({
         rootRef: elementRef,
         threshold,
+        once: true,
     });
+    const [isPlayed, setisPlayed] = useState(false);
 
     useEffect(() => {
         const element = elementRef.current
         
-        if (!element || !isRevealed) return;
+        if (!element || !isRevealed || isPlayed) return;
 
-        animate(anime, element);
+        animate(anime, element).finished.then(() => setisPlayed(true));
 
-    }, [isRevealed, animate]);
+    }, [isRevealed, animate, setisPlayed, isPlayed]);
 
-    return elementRef;
+    return {
+        elementRef,
+        isPlayed
+    };
 };
 
 export default useAnimationReveal;

@@ -2,11 +2,11 @@
   "name": "websavva-blog",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "clear:public": "node scripts/clearArticleImages.js",
+    "dev": "npm run clear:public && next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "articles:generate": "tsc articles/generateArticles.ts --downlevelIteration && node articles/generateArticles.js"
+    "lint": "next lint"
   },
   "dependencies": {
     "@tailwindcss/line-clamp": "^0.3.0",

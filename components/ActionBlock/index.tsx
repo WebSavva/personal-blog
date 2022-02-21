@@ -1,42 +1,17 @@
-import Image from "next/image";
-import { FC, useRef, useEffect, useState, useCallback } from "react";
-import anime, { timeline } from "animejs";
+import { AnimateOnReveal } from "types/AnimationReveal";
 
-import useIntersetionObserver from "hooks/useIntersetionObserver";
-import splitIntoLetters from "utils/splitIntoLetters";
+import Image from "next/image";
+import WordSpliter from "../UI/WordSpliter";
+import useAnimationReveal from "@hooks/useAnimationReveal";
+import { animateByFrames } from "@/utils/animeUtils";
 
 import codeImg from "./appeal_code.jpg";
 
-const ActionBlock: FC = (props) => {
-  const sectionRef = useRef<null | HTMLElement>(null);
-
-  const isRevealed = useIntersetionObserver({
-    rootRef: sectionRef,
-  });
-
-  const actionHeading = [
-    ...splitIntoLetters(`Let's code`),
-    <br key="br" />,
-    ...splitIntoLetters("together !"),
-  ];
-
-  useEffect(() => {
-    const charSpans =
-      sectionRef.current?.querySelectorAll(".action-heading span") || [];
-    const subscribeForm = sectionRef.current?.querySelector(".subscribe-form");
-
-    if (!isRevealed) {
-      anime.set([...Array.from(charSpans), subscribeForm], {
-        opacity: 0,
-      });
-      return;
-    }
-
-    const timeline = anime.timeline({});
-
-    timeline
-      .add({
-        targets: sectionRef.current?.querySelectorAll(".action-heading span"),
+const animateActionBlock: AnimateOnReveal = (anime) => {
+  return animateByFrames([
+    [
+      {
+        targets: "#action-block .action-letter",
         opacity: {
           value: [0, 1],
           duration: 7e2,
@@ -49,51 +24,43 @@ const ActionBlock: FC = (props) => {
         },
         translateZ: 0,
         delay: (el, i) => 60 * (i + 1),
-      })
-      .add(
-        {
-          targets: sectionRef.current?.querySelector(".subscribe-form"),
-          duration: 5e2,
-          opacity: [0, 1],
-          easing: "linear",
-        },
-        "-=800"
-      );
-  }, [isRevealed]);
+      },
+      0
+    ],
+  ]);
+};
+
+const ActionBlock = () => {
+  const { elementRef: sectionRef, isPlayed } = useAnimationReveal({
+    animate: animateActionBlock,
+    threshold: .5,
+  });
 
   return (
     <section
-      className="w-full relative  flex items-center min-h-[600px] justify-center overflow-hidden py-10"
+      className="w-full relative  flex items-center min-h-[300px] md:min-h-[600px] justify-center overflow-hidden  px-5 py-5 md:py-10"
       ref={sectionRef}
+      id="action-block"
     >
-      <div className="w-full min-h-[600px] absolute">
+      <div className="w-full min-h-[300px] lg:min-h-[600px] absolute">
         <Image
           src={codeImg.src}
           layout="fill"
-          objectFit="cover"
           alt=""
+          objectFit="cover"
+          role="presentation"
           className="brightness-50"
         />
       </div>
 
-      <div className="flex flex-col relative z-10">
-        <h1 className="text-9xl leading-[1.1em] tracking-[.05em] uppercase font-bold text-center text-white relative z-10 action-heading">
-          {actionHeading}
-        </h1>
-
-        <form className="mt-5 flex subscribe-form">
-          <input
-            type="email"
-            name="email"
-            id="email"
-            placeholder="Email Address"
-            className="shadow-xl shadow-indigo-500/50 py-3 px-5 rounded-l-md text-lg text-gray-500 grow"
+      <div className="flex flex-col">
+        <h1 className="text-[50px] sm:text-7xl lg:text-9xl relative z-10 leading-[1.1em] tracking-[.05em] uppercase font-bold text-center text-white">
+          <WordSpliter
+            text={`Let's code\ntogether!`}
+            isSplitted={!isPlayed}
+            className="invisible action-letter"
           />
-
-          <button className="shadow-xl shadow-indigo-700/50 px-5 bg-blue-700 rounded-r-md text-white text-bold text-center">
-            Subscribe
-          </button>
-        </form>
+        </h1>
       </div>
     </section>
   );

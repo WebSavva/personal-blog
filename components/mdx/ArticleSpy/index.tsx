@@ -4,8 +4,9 @@ import { SectionContext } from "context/SectionContext";
 
 import debounce from "lodash/debounce";
 import { useRouter } from "next/router";
-import { useContext, useEffect, useState, useCallback } from "react";
+import { useContext, useEffect, useState } from "react";
 
+import useMediaQuery from "@hooks/useMediaQuery";
 import AnimatedTitle from "./AnimatedTitle";
 
 const ArticleSpy = () => {
@@ -14,7 +15,7 @@ const ArticleSpy = () => {
     null
   );
   const [scrolledHeight, setScrolledHeight] = useState<number>(0);
-
+  const isMobile = useMediaQuery("(max-width:1280px)");
   const router = useRouter();
 
   useEffect(() => {
@@ -52,13 +53,11 @@ const ArticleSpy = () => {
   }, [sections]);
 
   useEffect(() => {
-
     if (!activeSection) return;
 
     router.push({
       hash: activeSection.id,
-    })
-
+    });
   }, [activeSection]);
 
   useEffect(() => {
@@ -66,21 +65,23 @@ const ArticleSpy = () => {
   }, [router.pathname, clear]);
 
   return sections.length ? (
-    <div className="w-[200px] h-[350px] ml-auto mt-4 relative">
-      <div className="h-full bg-gray-300 rounded-lg w-[5px]" />
+    <div className="w-full h-[5px] xl:w-[200px] xl:h-[350px] xl:ml-auto xl:mt-4 relative">
+      <div className="hidden xl:block h-full bg-gray-300 rounded-lg w-[5px]" />
 
       <div
-        className="absolute left-0 top-0 transition-all w-full ease-out duration-500"
+        className="xl:absolute h-full xl:h-auto xl:left-0 xl:top-0 transition-all xl:w-full ease-out duration-500"
         style={{
-          height: scrolledHeight + "%",
+          [isMobile ? "width" : "height"]: scrolledHeight + "%",
         }}
       >
-        <div className="h-full bg-blue-600 rounded-lg w-[5px]" />
+        <div className="h-full bg-blue-600 xl:rounded-lg w-full xl:w-[5px]" />
 
-        <AnimatedTitle
-          className="absolute bottom-0 left-5 text-ellipsis overflow-hidden"
-          title={activeSection?.title || null}
-        />
+        {!isMobile && (
+          <AnimatedTitle
+            className="absolute bottom-0 left-5 text-ellipsis overflow-hidden"
+            title={activeSection?.title || null}
+          />
+        )}
       </div>
     </div>
   ) : null;

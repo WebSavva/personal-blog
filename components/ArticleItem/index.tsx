@@ -7,57 +7,45 @@ import Link from "next/link";
 
 import formateDate from "@/utils/formateDate";
 import useAnimationReveal from "@hooks/useAnimationReveal";
-import meteorImage from '../../public/meteor-logo.png';
+import meteorImage from "../../public/meteor-logo.png";
+import { animateByFrames } from "@/utils/animeUtils";
 
-const ArticleItem: FC<ExtendedIArticleMetadata & { order: number }> = ({
+const appearAnimation: AnimateOnReveal = (_, el) => {
+
+  return animateByFrames(
+    [
+      [
+        {
+          targets: el.querySelector(".image"),
+          opacity: [0, 1],
+          translateX: [-100, 0],
+        },
+      ],
+      [
+        {
+          targets: el.querySelector(".text"),
+          opacity: [0, 1],
+          translateY: [20, 0],
+        },
+      ],
+    ],
+    {
+      duration: 800,
+      easing: "easeOutQuart",
+    }
+  );
+};
+const ArticleItem: FC<ExtendedIArticleMetadata> = ({
   description,
   publishedAt,
   thumbnail,
   title,
   tags,
-  order,
   slug,
 }) => {
-  const isEven = !(order % 2);
-
-  const appearAnimation: AnimateOnReveal = (anime, el) => {
-    anime
-      .timeline({
-        duration: 800,
-        easing: "easeOutQuart",
-      })
-      .add({
-        targets: el,
-        opacity: {
-          value: [0, 1],
-          duration: 600,
-          easing: "linear",
-        },
-        translateX: {
-          value: [330 * (isEven ? 1 : -1), 0],
-          duration: 800,
-          easing: "easeOutQuart",
-        },
-        begin: (animeState) => {
-          animeState.animatables.forEach((el) =>
-            el.target.classList.remove("invisible")
-          );
-        },
-      })
-      .add({
-        targets: el.querySelector(".text"),
-        begin: (animeState) => {
-          animeState.animatables.forEach((el) =>
-            el.target.classList.remove("invisible")
-          );
-        },
-        opacity: [0, 1],
-        translateY: [20, 0],
-      });
-  };
-
-  const blogRef = useAnimationReveal<HTMLAnchorElement>({
+  const { elementRef: articleRef } = useAnimationReveal<HTMLAnchorElement>({
     animate: appearAnimation,
+    threshold: .5,
   });
 
   return (
@@ -70,11 +58,18 @@ const ArticleItem: FC<ExtendedIArticleMetadata & { order: number }> = ({
       }}
     >
       <a
-        ref={blogRef}
-        className="shadow flex space-x-5 rounded-lg overflow-hidden w-[60%] invisible"
+        ref={articleRef}
+        className="shadow-lg flex flex-col md:flex-row md:space-x-5 rounded-lg overflow-hidden lg:w-[60%]"
       >
-        <div className="w-[250px] flex-shrink-0 h-[250px] relative">
-          <Image src={thumbnail} alt={title} layout="fill" objectFit="cover" blurDataURL={meteorImage.src}/>
+        <div className="w-full md:w-[250px] flex-shrink-0 h-[200px] md:h-[250px] invisible relative image">
+          <Image
+            src={thumbnail}
+            alt={title}
+            layout="fill"
+            objectFit="cover"
+            blurDataURL={meteorImage.src}
+            className="image"
+          />
         </div>
 
         <div className="p-5 space-y-2 text">
@@ -82,7 +77,7 @@ const ArticleItem: FC<ExtendedIArticleMetadata & { order: number }> = ({
 
           <small className="text-gray-600">{formateDate(publishedAt)}</small>
 
-          <p className="text-gray-800 text-md line-clamp-4 mt">{description}</p>
+          <p className="text-gray-800 text-md md:line-clamp-4 mt">{description}</p>
         </div>
       </a>
     </Link>

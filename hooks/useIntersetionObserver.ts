@@ -20,7 +20,6 @@ const useIntersetionObserver = ({
       ([entry]) => {
         setIsRevealed(entry.isIntersecting);
 
-        console.log(entry);
         if (once && rootEl && entry.isIntersecting) observer.unobserve(rootEl);
       },
       {

@@ -11,28 +11,20 @@ import SyntaxHighlighter from "react-syntax-highlighter";
 import { nightOwl } from "react-syntax-highlighter/dist/cjs/styles/hljs";
 import { useRouter } from "next/router";
 
-import useMediaQuery from "@hooks/useMediaQuery";
 import ArticleImage from "@/components/mdx/ArticleImage";
-import { SectionContext } from "context/SectionContext";
 import SectionHeader from '@/components/mdx/SectionHeader';
-
 
 const ArticlePage: NextPage<IArticle> = ({ body }) => {
   const Component = useMemo(() => getMDXComponent(body), [body]);
-  const {
-    clear,
-  } = useContext(SectionContext);
-  const router = useRouter();
-  const isMobile = useMediaQuery('(max-width: 1000px)');
 
   return (
-    <div className={`flex justify-center py-20 ${isMobile && 'bg-green-600'}`}>
-      <article className="w-[700px] prose lg:prose-lg">
+    <div className="flex justify-center px-10 md:px-0 py-20">
+      <article className="md:w-[700px] prose lg:prose-lg">
         <Component
           components={{
+            SectionHeader,
             ArticleImage,
             Code: (props) => <SyntaxHighlighter {...props} language='javascript' style={nightOwl} showLineNumbers/>,
-            SectionHeader,
           }}
         />
       </article>

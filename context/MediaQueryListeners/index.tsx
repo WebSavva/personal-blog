@@ -42,7 +42,7 @@ const MediaQueryProvider: FunctionComponent = ({ children }) => {
       if (!listenerIds.length) return;
 
       const mediaQuery = window.matchMedia(query);
-      const mediaHandler = (e: MediaQueryListEvent) => {
+      const mediaHandler = (e: MediaQueryListEvent | { matches:boolean }) => {
         setMediaQueryState((prevState) => ({
           ...prevState,
           [query]: e.matches,
@@ -50,6 +50,8 @@ const MediaQueryProvider: FunctionComponent = ({ children }) => {
       };
       mediaQuery.addEventListener("change", mediaHandler);
 
+      mediaHandler(mediaQuery);
+      
       mediaQueryMap.set(mediaQuery, mediaHandler);
     });
 

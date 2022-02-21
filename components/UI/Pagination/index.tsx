@@ -54,7 +54,7 @@ const Pagination: FC<IPaginationProps> = ({
   // Basic list of items to render
   // e.g. itemList = ['first', 'previous', 1, 'ellipsis', 4, 5, 6, 'ellipsis', 10, 'next', 'last']
   const itemList = [
-    ...(showPrevButton ? [TYPES.PREV] : []),
+    ...((showPrevButton && page - 1) ? [TYPES.PREV] : []),
     ...startPages,
 
     // Start ellipsis
@@ -77,7 +77,7 @@ const Pagination: FC<IPaginationProps> = ({
       : []),
 
     ...endPages,
-    ...(showNextButton ? [TYPES.NEXT] : []),
+    ...((showNextButton && page + 1 < count )? [TYPES.NEXT] : []),
   ];
 
   // Map the button type to its page number

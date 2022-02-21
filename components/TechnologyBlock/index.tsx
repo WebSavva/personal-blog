@@ -1,3 +1,5 @@
+import { AnimateOnReveal } from "types/AnimationReveal";
+
 import {
   SiJavascript,
   SiNodedotjs,
@@ -10,11 +12,10 @@ import {
   SiSass,
   SiMongodb,
 } from "react-icons/si";
-import { FC, useRef, useEffect } from "react";
-import anime from "animejs";
 
-import splitIntoLetters from "utils/splitIntoLetters";
-import useIntersetionObserver from "hooks/useIntersetionObserver";
+import WordSpliter from "../UI/WordSpliter";
+import useAnimationReveal from "@hooks/useAnimationReveal";
+import { animateByFrames } from "@/utils/animeUtils";
 
 const icons = [
   SiJavascript,
@@ -28,68 +29,65 @@ const icons = [
   SiSass,
   SiMongodb,
 ];
+const animateTechnologyBlock: AnimateOnReveal = (anime) => {
+  return animateByFrames([
+    [
+      {
+        targets: "#technology-block .title-letter",
+        translateX: {
+          value: [-10, 0],
+          duration: 7e2,
+          easing: "easeOutQuart",
+        },
+        opacity: {
+          value: [0, 1],
+          duration: 5e2,
+          easing: "easeOutQuart",
+        },
+        delay: (el, i) => 50 * i,
+      },
+    ],
+    [
+      {
+        targets: "#technology-block .icon",
+        delay: (el: Element, i: number) => i * 100,
+        scale: [0, 1],
+        opacity: [0, 1],
+        easing: "easeInOutElastic(1, .4)",
+        duration: 15e2,
+      },
+      "-=1500",
+    ],
+  ]);
+};
 
-const TechnologyBlock: FC = () => {
-  const sectionRef = useRef<null | HTMLElement>(null);
-  const isRevealed = useIntersetionObserver({
-    rootRef: sectionRef,
+const TechnologyBlock = () => {
+  const { elementRef: sectionRef, isPlayed } = useAnimationReveal({
+    animate: animateTechnologyBlock,
+    threshold: .25,
   });
-  const headingText = splitIntoLetters("Technologies");
-
-  useEffect(() => {
-    const targets = {
-      heading: sectionRef.current?.querySelectorAll("h2 span") || ([] as any),
-      icons: sectionRef.current?.querySelectorAll("svg") || ([] as any),
-    };
-
-    if (!isRevealed) {
-      anime.set(
-        Object.values(targets).reduce(
-          (ac, nodeList) => [...ac, ...Array.from(nodeList)],
-          []
-        ),
-        {
-          opacity: 0,
-        }
-      );
-    } else {
-      const timeline = anime.timeline({});
-      timeline
-        .add({
-          targets: targets.heading,
-          translateX: {
-            value: [-10, 0],
-            duration: 7e2,
-            easing: "easeOutQuart",
-          },
-          opacity: {
-            value: [0, 1],
-            duration: 5e2,
-            easing: "easeOutQuart"
-          },
-          delay: (el, i) => 50 * i,
-        })
-        .add({
-          targets: targets.icons,
-          delay: (el: Element, i: number) => i * 100,
-          scale: [0, 1],
-          opacity: [0, 1],
-          easing: "easeInOutElastic(1, .4)",
-          duration: 15e2,
-        }, '-=1500');
-    }
-  }, [isRevealed]);
 
   const logos = icons.map((Icon) => (
-    <Icon key={Icon.name} className="h-full w-full fill-slate-600" />
+    <div key={Icon.name} className="flex-grow">
+      <Icon
+        key={Icon.name}
+        className="mr-5 mb-5 lg:mr-0 lg:mb-0  h-full w-full fill-slate-600 invisible icon"
+      />
+    </div>
   ));
 
   return (
-    <section className={`my-32 px-14`} ref={sectionRef}>
-      <div className="flex justify-between">
-        <h2 className="text-5xl font-bold text-gray-800">{headingText}</h2>
+    <section
+      className={`my-32 px-5 md:px-14`}
+      ref={sectionRef}
+      id="technology-block"
+    >
+      <div className="flex flex-col space-y-16 lg:space-y-0 lg:flex-row justify-between">
+        <h2 className="text-4xl md:text-5xl font-bold text-gray-800">
+          <WordSpliter text="Technologies" className="invisible title-letter" isSplitted={!isPlayed}/>
+        </h2>
 
-        <div className="grid grid-cols-[repeat(5,70px)] gap-[80px]">
+        <div className="grid technology-list gap-12 lg:grid-cols-[repeat(5,70px)] lg:gap-[50px] xl:gap-[80px]">
           {logos}
         </div>
       </div>

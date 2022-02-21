@@ -21,9 +21,9 @@ interface IParams extends ParsedUrlQuery {
 const BlogsPage: NextPage<IArticlesPageProps> = ({ articles, metadata }) => {
   return (
     <div className="py-10 px-5 flex flex-col">
-      <div className="flex flex-col items-center space-y-8 pl-10 mb-10">
-        {articles.map((article, i) => (
-          <ArticleItem key={article.title} {...article} order={i + 1} />
+      <div className="flex flex-col items-center space-y-8 mb-10">
+        {articles.map((article) => (
+          <ArticleItem key={article.title} {...article} />
         ))}
       </div>
 
@@ -32,7 +32,7 @@ const BlogsPage: NextPage<IArticlesPageProps> = ({ articles, metadata }) => {
   );
 };
 
-const PAGE_SIZE = 3;
+const PAGE_SIZE = 5;
 
 const getArticlesMetaList = (() => {
   let articlesMetaList: Array<ExtendedIArticleMetadata>;
@@ -41,13 +41,11 @@ const getArticlesMetaList = (() => {
     if (articlesMetaList) return articlesMetaList;
 
     articlesMetaList = [];
-    
+
     const articleSlugs = getArticlesList();
 
     for (let slug of articleSlugs) {
-      const {
-        frontMatter,
-      } = await compileArticle(slug);
+      const { frontMatter } = await compileArticle(slug);
 
       articlesMetaList.push({
         ...frontMatter,
