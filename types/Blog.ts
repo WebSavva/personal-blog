@@ -1,4 +1,4 @@
-export type CATEGORY = "javascript" | "react" | "vue" | "html" | "css" | "node";
+export type CATEGORY = "javascript" | "react" | "vue" | "html" | "css" | "node" | "sass";
 
 export interface IArticleMetadata {
   title: string;
