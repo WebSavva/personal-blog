@@ -20,6 +20,7 @@ const ArticleImage: FunctionComponent<{
   return (
     <figure ref={rootRef} className="unset-img">
       <Image
+        unoptimized
         onLoadingComplete={() => setIsLoaded(true)}
         src={src}
         alt={alt}

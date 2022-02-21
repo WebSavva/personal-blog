@@ -22,8 +22,8 @@ const ArticlePage: NextPage<IArticle> = ({ body }) => {
       <article className="md:w-[700px] prose lg:prose-lg">
         <Component
           components={{
-            SectionHeader,
-            ArticleImage,
+            SectionHeader: (props) => <SectionHeader {...props}/>,
+            ArticleImage: (props) => <ArticleImage {...props}/>,
             Code: (props) => <SyntaxHighlighter {...props} language='javascript' style={nightOwl} showLineNumbers/>,
           }}
         />

@@ -63,6 +63,7 @@ const ArticleItem: FC<ExtendedIArticleMetadata> = ({
       >
         <div className="w-full md:w-[250px] flex-shrink-0 h-[200px] md:h-[250px] invisible relative image">
           <Image
+            unoptimized
             src={thumbnail}
             alt={title}
             layout="fill"

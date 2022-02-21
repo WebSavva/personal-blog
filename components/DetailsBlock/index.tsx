@@ -96,6 +96,7 @@ const DetailsBlock = () => {
 
         <div className="unset-img">
           <Image
+            unoptimized
             src={laptopImg.src}
             alt=""
             layout="fill"

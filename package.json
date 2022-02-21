@@ -2,7 +2,7 @@
   "name": "websavva-blog",
   "private": true,
   "scripts": {
-    "clear:public": "node scripts/clearArticleImages.js",
+    "clear:public": "node prebuild/clearArticleImages.js",
     "dev": "npm run clear:public && next dev",
     "build": "npm run clear:public && next build && next export",
     "start": "next start",
