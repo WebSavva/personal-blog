@@ -4,7 +4,7 @@
   "scripts": {
     "clear:public": "node prebuild/clearArticleImages.js",
     "dev": "npm run clear:public && next dev",
-    "build": "npm run clear:public && next build && next export",
+    "build": "next build && next export",
     "start": "next start",
     "lint": "next lint"
   },
